@@ -1,0 +1,22 @@
+整体思想：
+	在计算图中，对每个节点（如变量节点nfunc类，运算符节点***Para类）定义对象（Para前的单词表示这个运算符有几个参数，对应几个Point指针）并用Point类统一部分类内成员和实现虚函数多态
+	相应的，我们实现虚函数evaluate()计算value，
+	虚函数setvalue()进行计算前的赋值（只有Placeholder类调用才不会报错），
+		这个函数先判断这个变量是否已经初始化过，初始化过直接输出，未初始化则运算后输出
+	虚函数reset()供main调用，将某个节点自身和它的孩子（如果有的话）设置为未初始化。
+main.cpp:
+	调用外部函数进行计算图构建和运算
+calculatio.h/.cpp:
+	整合所有头文件并定义有关运算赋值和运算错误的操作函数。
+	debug用于调试单步输出
+我们的库：
+-全程序以Point抽象类为基础接口，下面的nfunc类，OnePara类，TwoPara类，ThreePara类为其继承类
+
+-nfunc类是用来储存节点有按变量类型分为三个派生类 constant variable 和placeholder
+用placeholder_missing判断是否初始化了 假如placeholder没有被赋值则输出ERROR: Placeholder missing
+
+-OnePara类中实现了sin, log, exp, tanh, sigmoid,print的运算，这几个运算类分别为OnePara类的继承，并且通过构造函数传入其所需要运算的上一个节点（Point类），通过evaluate函数进行运算操作。其中，evaluate函数中，首先判断该节点是加入error()来判断定义域以及前面的节点未初始化问题，加入debug操作来调试单步输出。
+
+-TwoPara类中实现了加减乘除以及逻辑运算符问题，这几个运算类分别为TwoPara类的继承，并且通过构造函数传入其所需要运算的上两个节点（Point类），通过evaluate函数进行运算操作，并且加入error()来判断定义域以及前面的节点未初始化问题
+
+-ThreePara类中实现了COND类，细节同上
